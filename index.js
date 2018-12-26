@@ -91,6 +91,7 @@ function applyPoints() {
 function renderPlayers() {
     const $playersList = $('#players-list');
     $playersList.html('');
+    players.sort((a, b) => b.getScore() - a.getScore());
     for (const player of players) {
         const $player = $(`<li class="player-element">
     ${player.getName()}: ${player.getScore()}
