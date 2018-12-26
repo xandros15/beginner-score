@@ -1,5 +1,5 @@
-function Player(name) {
-    let score = 0;
+function Player(name, score) {
+    score = score || 0;
     let correctAnswer = false;
 
     this.addPoints = points => {
@@ -12,9 +12,27 @@ function Player(name) {
     this.setCorrectAnswer = () => correctAnswer = true;
     this.resetAnswer = () => correctAnswer = false;
 
-    this.toString = () => {
-        return JSON.stringify({name, score})
+    this.toObject = () => {
+        return {name, score};
     };
+}
+
+function loadFromStorage() {
+    const preparedPlayers = JSON.parse(localStorage.getItem('players') || '[]');
+    players = [];
+    for (const newPlayer of preparedPlayers) {
+        const player = new Player(newPlayer.name, newPlayer.score);
+        players.push(player);
+    }
+}
+
+function resetGame() {
+    players = [];
+    saveInStorage();
+}
+
+function saveInStorage() {
+    localStorage.setItem('players', JSON.stringify(players.map(player => player.toObject())));
 }
 
 let players = [];
@@ -99,12 +117,14 @@ function renderPlayers() {
 const $addPlayerForm = $('#add-player-form');
 const $removePlayerForm = $('#remove-player-form');
 const $givePoints = $('#give-points');
+const $resetGame = $('#reset-game');
 
 $removePlayerForm.submit(e => {
     const $input = $removePlayerForm.find('input');
     e.preventDefault();
     removePlayer($input.val());
     renderPlayers();
+    saveInStorage();
     $input.val('');
 });
 
@@ -113,6 +133,7 @@ $addPlayerForm.submit(e => {
     e.preventDefault();
     createNewPlayer($input.val());
     renderPlayers();
+    saveInStorage();
     $input.val('');
 });
 
@@ -120,4 +141,14 @@ $givePoints.click(e => {
     e.preventDefault();
     applyPoints();
     renderPlayers();
+    saveInStorage();
 });
+
+$resetGame.submit(e => {
+    e.preventDefault();
+    resetGame();
+    renderPlayers();
+});
+
+loadFromStorage();
+renderPlayers();
